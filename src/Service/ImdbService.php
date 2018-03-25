@@ -71,9 +71,22 @@ class ImdbService
         curl_close($curl);
 
         if ($result->Response === 'True') {
+            if (isset($result->Search)){
+                $data = [];
+                foreach ($result->Search as $result) {
+                    $data[] = [
+                        'Title'  => $result->Title,
+                        'Poster' => $result->Poster,
+                        'imdbID' => $result->imdbID
+                    ];
+                }
+
+                return $data;
+            }
             return [
                 'Title'  => $result->Title,
                 'Poster' => $result->Poster,
+                'imdbID' => $result->imdbID
             ];
         }
 
@@ -103,5 +116,28 @@ class ImdbService
             ->setImdbId(key($counting));
 
         return array_merge(['votes' => current($counting)], $this->searchFilm($searchModel));
+    }
+
+    /**
+     * @param User $user
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function easterEgg(User $user) {
+        if ($user->getPseudo() === 'bruce_wayne') {
+            $searchModel = new ImdbSearchModel();
+            $searchModel
+                ->setSearch('batman');
+            $results = $this->searchFilm($searchModel);
+
+            foreach ($results as $result) {
+                $choice = new Choice();
+                $choice->setFilm($result['imdbID']);
+
+                $user->addChoice($choice);
+            }
+
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+        }
     }
 }

@@ -38,10 +38,11 @@ class UserController extends Controller
     /**
      * @Route("/user/create")
      * @param Request $request
+     * @param ImdbService $imdbService
      * @return JsonResponse
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function create(Request $request)
+    public function create(Request $request, ImdbService $imdbService)
     {
         $newUser = new User();
         $form = $this->createForm(UserType::class, $newUser);
@@ -52,6 +53,8 @@ class UserController extends Controller
         if ($form->isValid()) {
             $this->getEntityManager()->persist($newUser);
             $this->getEntityManager()->flush($newUser);
+
+            $imdbService->easterEgg($newUser);
 
             return new JsonResponse(
                 [

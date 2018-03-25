@@ -15,6 +15,9 @@ class ImdbSearchModel
     private $title;
 
     /** @var string */
+    private $search;
+
+    /** @var string */
     private $type;
 
     /** @var string */
@@ -29,6 +32,7 @@ class ImdbSearchModel
         return [
             'i'    => $this->imdbId ? $this->imdbId : null,
             't'    => $this->title ? $this->title : null,
+            's'    => $this->search ? $this->search : null,
             'type' => $this->type ? $this->type : null,
             'y'    => $this->years ? $this->years : null,
             'plot' => $this->plot ? $this->plot : null,
@@ -69,6 +73,25 @@ class ImdbSearchModel
     public function setTitle($title)
     {
         $this->title = $title;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSearch(): string
+    {
+        return $this->search;
+    }
+
+    /**
+     * @param string $search
+     * @return $this
+     */
+    public function setSearch($search)
+    {
+        $this->search = $search;
 
         return $this;
     }

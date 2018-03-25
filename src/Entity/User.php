@@ -45,7 +45,7 @@ class User
 
     /**
      * @var ArrayCollection|Choice[]
-     * @ORM\OneToMany(targetEntity="App\Entity\Choice", mappedBy="user")
+     * @ORM\OneToMany(targetEntity="App\Entity\Choice", mappedBy="user",cascade={"persist"})
      */
     private $choices;
 
