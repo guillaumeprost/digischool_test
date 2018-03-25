@@ -2,6 +2,8 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: 'en'
+    imdb_api-key: '28a104cc'
+    imdb_url: 'http://www.omdbapi.com/'
 
 services:
     # default configuration for services in *this* file
@@ -26,3 +28,9 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    App\Service\ImdbService:
+        arguments:
+            $imdbApiKey: '%imdb_api-key%'
+            $imdbUrl: '%imdb_url%'
+            $entityManager: '@doctrine.orm.entity_manager'

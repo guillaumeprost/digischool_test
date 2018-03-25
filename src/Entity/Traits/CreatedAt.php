@@ -4,6 +4,10 @@ namespace App\Entity\Traits;
 
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Trait CreatedAt
+ * @package App\Entity\Traits
+ */
 trait CreatedAt
 {
     /**
@@ -24,23 +28,12 @@ trait CreatedAt
     /**
      * @param mixed $createdAt
      * @return $this
+     * @ORM\PrePersist()
      */
     public function setCreatedAt($createdAt)
     {
-        $this->createdAt = $createdAt;
+        $this->createdAt = new \DateTime();
 
         return $this;
-    }
-
-    /**
-     *
-     * @ORM\PrePersist
-     * @ORM\PreUpdate
-     */
-    public function updatedTimestamps()
-    {
-        if ($this->getCreatedAt() == null) {
-            $this->setCreatedAt(new \DateTime());
-        }
     }
 }
