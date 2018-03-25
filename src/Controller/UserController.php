@@ -36,7 +36,7 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/user/create")
+     * @Route("/user/create", methods={POST})
      * @param Request $request
      * @param ImdbService $imdbService
      * @return JsonResponse
@@ -79,7 +79,7 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/user/{id}/submit-choice")
+     * @Route("/user/{id}/submit-choice", methods={POST})
      * @param User $user
      * @param Request $request
      * @return JsonResponse
@@ -119,16 +119,18 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/user/{id}/delete/{film}")
+     * @Route("/user/{id}/delete/{film}", methods={DELETE})
      * @param User $user
      * @param string $film
      * @return JsonResponse
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function deleteChoice(User $user, $film)
     {
         foreach ($user->getChoices() as $choice) {
             if ($choice->getFilm() === $film) {
                 $this->getEntityManager()->remove($choice);
+                $this->getEntityManager()->flush();
 
                 return new JsonResponse(['succes' => true]);
             }
@@ -143,8 +145,9 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/user/{id}/list-choice")
-     * @param $user
+     * @Route("/user/{id}/list-choice", methods={GET})
+     * @param User $user
+     * @param ImdbService $imdbService
      * @return JsonResponse
      */
     public function listChoices(User $user, ImdbService $imdbService)
@@ -155,7 +158,7 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/list-users/{choice}")
+     * @Route("/list-users/{choice}", methods={GET})
      * @param string $choice
      * @return JsonResponse
      */
@@ -173,7 +176,7 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/result")
+     * @Route("/result", methods={GET})
      * @param ImdbService $imdbService
      * @return JsonResponse
      */
