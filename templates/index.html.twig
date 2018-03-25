@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    {{ form_start(form, {'attr': {
+        'method': 'POST',
+        'action': path('app_user_create')
+    }}
+    ) }}
+
+    {{ form_widget(form) }}
+
+    <input type="submit" class="btn" value="Create" />
+    {{ form_end(form) }}
+{% endblock %}
