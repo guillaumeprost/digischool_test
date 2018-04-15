@@ -17,7 +17,7 @@ API key imdb `28a104cc`
 
 ###Create User
     
-Route : ``/user`` (POST)
+Route : ``/user``  (POST)
     
 Parameters : 
 * pseudo
