@@ -17,52 +17,50 @@ API key imdb `28a104cc`
 
 ###Create User
     
-Route : ``/user/create``
+Route : ``/user`` (POST)
     
 Parameters : 
 * pseudo
 * email
-* birthDate[day]
-* birthDate[month]
-* birthDate[year]
+* birthDate (format: yyyy-MM-dd)
     
 ###Save user's choice
 
 Save a choice for a user
 
-Route ``/user/{id}/submit-choice``
+Route: ``/choice`` (POST)
 
 Parameters :
-* id : (route parameter) Id of the user
+* userId : (query parameter) Id of the user
 * film: ImdbId of the film
 
 ###Delete Choice
 
 Delete a choice for an user
 
-Route ``/user/{id}/delete/{film}``
+Route ``/choice/{imdbId}`` (DELETE)
 
 Parameters :
-* id : (route parameter) Id of the user
-* film: (route parameter) ImdbId of the film
+* userId : (query parameter) Id of the user
+* imdbId: (route parameter) ImdbId of the film
 
 ###List Choice
 
 List the films choose by the provided user
 
-Route ``/user/{id}/list-choice``
+Route ``/choices``
 
 Parameters :
-* id : (route parameter) Id of the user
+* userId : (query parameter) Id of the user
 
 ###List Users
 
 List users who choose the provided choice
 
-Route ``/list-users/{choice}``
+Route ``/users``
 
 Parameters :
-* choice : (route parameter) ImdbId of the film
+* choice : (query parameter) ImdbId of the film
 
 ###Get Result
 

@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Entity\Traits\DoctrineId;
+use App\Validator\FilmExist;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
@@ -32,6 +33,7 @@ class Choice
      * Imdb film Id
      *
      * @var string
+     * @FilmExist()
      * @ORM\Column(type="string")
      */
     private $film;

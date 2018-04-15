@@ -24,7 +24,9 @@ class UserType extends AbstractType
         $builder
             ->add('pseudo', TextType::class)
             ->add('email', TextType::class)
-            ->add('birthDate', DateType::class);
+            ->add('birthDate', DateType::class, [
+                'widget' => 'single_text'//Format : yyyy-MM-dd
+            ]);
     }
 
     /**

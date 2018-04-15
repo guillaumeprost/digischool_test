@@ -9,8 +9,10 @@ use App\Form\UserType;
 use App\Service\ImdbService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -36,10 +38,13 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/user/create", methods={POST})
+     * @Route("/user")
+     * @Method("POST")
+     *
      * @param Request $request
      * @param ImdbService $imdbService
      * @return JsonResponse
+     * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function create(Request $request, ImdbService $imdbService)
@@ -65,7 +70,9 @@ class UserController extends Controller
 
         } else {
             $errors = [];
-            foreach ($form->getErrors(true, true) as $error) {
+
+            /** @var FormError $error */
+            foreach ($form->getErrors(true) as $error) {
                 $errors[] = $error->getMessage();
             }
 
@@ -73,20 +80,33 @@ class UserController extends Controller
                 [
                     'success' => false,
                     'errors'  => $errors,
-                ]
+                ], 500
             );
         }
     }
 
     /**
-     * @Route("/user/{id}/submit-choice", methods={POST})
-     * @param User $user
+     * @Route("/choice")
+     * @Method("POST")
+     *
      * @param Request $request
      * @return JsonResponse
+     * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function saveChoice(User $user, Request $request)
+    public function saveChoice(Request $request)
     {
+        $user = $this->getEntityManager()->getRepository(User::class)->findOneById($request->query->get('userId', null));
+
+        if(!$user instanceof User) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+                    'choice'  => 'User not Found',
+                ], 401
+            );
+        }
+
         $newChoice = (new Choice())->setUser($user);
         $form = $this->createForm(ChoiceType::class, $newChoice);
 
@@ -113,22 +133,36 @@ class UserController extends Controller
                 [
                     'success' => false,
                     'errors'  => $errors,
-                ]
+                ], 500
             );
         }
     }
 
     /**
-     * @Route("/user/{id}/delete/{film}", methods={DELETE})
-     * @param User $user
-     * @param string $film
+     * @Route("/choice/{imdbId}")
+     * @Method("DELETE")
+     *
+     * @param Request $request
+     * @param string $imdbId
      * @return JsonResponse
+     * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function deleteChoice(User $user, $film)
+    public function deleteChoice(Request $request, $imdbId)
     {
+        $user = $this->getEntityManager()->getRepository(User::class)->findOneById($request->query->get('userId', null));
+
+        if(!$user instanceof User) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+                    'choice'  => 'User not Found',
+                ], 401
+            );
+        }
+
         foreach ($user->getChoices() as $choice) {
-            if ($choice->getFilm() === $film) {
+            if ($choice->getFilm() === $imdbId) {
                 $this->getEntityManager()->remove($choice);
                 $this->getEntityManager()->flush();
 
@@ -140,32 +174,48 @@ class UserController extends Controller
             [
                 'succes'  => false,
                 'message' => 'The user did not choose this film',
-            ]
+            ], 500
         );
     }
 
     /**
-     * @Route("/user/{id}/list-choice", methods={GET})
-     * @param User $user
+     * @Route("/choices")
+     * @Method("GET")
+     *
+     * @param Request $request
      * @param ImdbService $imdbService
      * @return JsonResponse
+     * @throws \Doctrine\ORM\ORMException
      */
-    public function listChoices(User $user, ImdbService $imdbService)
+    public function listChoices(Request $request, ImdbService $imdbService)
     {
+        $user = $this->getEntityManager()->getRepository(User::class)->findOneById($request->query->get('userId', null));
+
+        if(!$user instanceof User) {
+            return new JsonResponse(
+                [
+                    'success' => false,
+                    'choice'  => 'User not Found',
+                ], 401
+            );
+        }
+
         $results = $imdbService->getUserFilms($user);
 
         return new JsonResponse($results);
     }
 
     /**
-     * @Route("/list-users/{choice}", methods={GET})
-     * @param string $choice
+     * @Route("/users")
+     * @Method("GET")
+     *
+     * @param Request $request
      * @return JsonResponse
      */
-    public function listUser($choice)
+    public function listUser(Request $request)
     {
         /** @var ArrayCollection|User[] $users */
-        $users = $this->getDoctrine()->getRepository(User::class)->findByChoice($choice);
+        $users = $this->getDoctrine()->getRepository(User::class)->findByChoice($request->query->get('choice', null));
 
         $usersData = [];
         foreach ($users as $user) {
@@ -176,13 +226,13 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/result", methods={GET})
-     * @param ImdbService $imdbService
+     * @Route("/result")
+     * @Method("GET")
      * @return JsonResponse
      */
-    public function result(ImdbService $imdbService)
+    public function result()
     {
-        $result = $imdbService->getResult();
+        $result = $this->getEntityManager()->getRepository('App:Choice')->countResult();
 
         return new JsonResponse($result);
     }

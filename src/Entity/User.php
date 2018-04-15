@@ -39,7 +39,7 @@ class User
     /**
      * @var \DateTime
      * @Assert\DateTime()
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="date")
      */
     private $birthDate;
 

@@ -70,56 +70,39 @@ class ImdbService
 
         curl_close($curl);
 
-        if ($result->Response === 'True') {
-            if (isset($result->Search)){
-                $data = [];
-                foreach ($result->Search as $result) {
-                    $data[] = [
-                        'Title'  => $result->Title,
-                        'Poster' => $result->Poster,
-                        'imdbID' => $result->imdbID
-                    ];
-                }
 
-                return $data;
-            }
+        if ($result->Response === 'False') {
             return [
-                'Title'  => $result->Title,
-                'Poster' => $result->Poster,
-                'imdbID' => $result->imdbID
+                'success' => false,
+                'message' => $result->Error
             ];
         }
 
-        return false;
-    }
-
-    /**
-     * @return array
-     */
-    public function getResult()
-    {
-        $counting = [];
-        $choices = $this->entityManager->getRepository(Choice::class)->findAll();
-
-        foreach ($choices as $choice) {
-            if (array_key_exists($choice->getFilm(), $counting)) {
-                $counting[$choice->getFilm()]++;
-            } else {
-                $counting[$choice->getFilm()] = 1;
+        if (isset($result->Search)){
+            $data = [];
+            foreach ($result->Search as $result) {
+                $data[] = [
+                    'success' => true,
+                    'title'   => $result->Title,
+                    'poster'  => $result->Poster,
+                    'imdbId'  => $result->imdbID
+                ];
             }
 
+            return $data;
         }
-        arsort($counting);
+        return [
+            'success' => true,
+            'title'   => $result->Title,
+            'poster'  => $result->Poster,
+            'imdbId'  => $result->imdbID
+        ];
 
-        $searchModel = new ImdbSearchModel();
-        $searchModel
-            ->setImdbId(key($counting));
-
-        return array_merge(['votes' => current($counting)], $this->searchFilm($searchModel));
     }
 
     /**
      * @param User $user
+     * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function easterEgg(User $user) {
@@ -131,7 +114,7 @@ class ImdbService
 
             foreach ($results as $result) {
                 $choice = new Choice();
-                $choice->setFilm($result['imdbID']);
+                $choice->setFilm($result['imdbId']);
 
                 $user->addChoice($choice);
             }

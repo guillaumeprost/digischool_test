@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Model\ImdbSearchModel;
 use App\Service\ImdbService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,11 +19,6 @@ class DefaultController extends AbstractController
      */
     public function index(ImdbService $service)
     {
-        $user = new User();
-        $user->setPseudo('bruce_wayne');
-
-        $service->easterEgg($user);
-
         return $this->render('base.html.twig');
     }
 }
